@@ -13,15 +13,15 @@ jobs:
   Python:
     runs-on: ${{ matrix.os }}
     strategy:
-      max-parallel: 4
+      max-parallel: 8
       matrix:
         os: [ubuntu-latest, macos-latest]
-        python-version: [3.8, 3.9, 3.10-dev]
+        python-version: [3.8, 3.9, 3.10.0]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2.2.2
+      uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies

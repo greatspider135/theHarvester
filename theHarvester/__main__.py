@@ -8,7 +8,7 @@ from theHarvester.lib import stash
 from theHarvester.lib.core import *
 import argparse
 import asyncio
-import orjson
+import ujson
 import netaddr
 import re
 import sys
@@ -65,7 +65,9 @@ async def start(rest_args=None):
         await db.do_init()
     except Exception:
         pass
-
+    import os
+    if len(filename) > 2 and filename[:2] == "~/":
+        filename = os.path.expanduser(filename)
     all_emails: List = []
     all_hosts: List = []
     all_ip: List = []
@@ -242,7 +244,7 @@ async def start(rest_args=None):
                 elif engineitem == 'censys':
                     from theHarvester.discovery import censysearch
                     try:
-                        censys_search = censysearch.SearchCensys(word)
+                        censys_search = censysearch.SearchCensys(word, limit)
                         stor_lst.append(store(censys_search, engineitem, store_host=True, store_emails=True))
                     except Exception as e:
                         if isinstance(e, MissingKey):
@@ -889,8 +891,10 @@ async def start(rest_args=None):
                 json_dict["linkedin_links"] = linkedin_links_tracker
 
             json_dict["shodan"] = shodanres
-            with open(filename, 'wb+') as fp:
-                fp.write(orjson.dumps(json_dict, option=orjson.OPT_SORT_KEYS))
+            with open(filename, 'w+') as fp:
+                # If you do not wish to install ujson you can do
+                # fp.write(json.dumps(json_dict, sort_keys=True)
+                fp.write(ujson.dumps(json_dict, sort_keys=True))
             print('[*] JSON File saved.')
         except Exception as er:
             print(f'\033[93m[!] An error occurred while saving the JSON file: {er} \033[0m')
